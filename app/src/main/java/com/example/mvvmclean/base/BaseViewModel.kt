@@ -8,7 +8,7 @@ import com.example.domain.utils.RemoteErrorEmitter
 import com.example.mvvmclean.widget.utils.ScreenState
 import com.example.mvvmclean.widget.utils.SingleLiveEvent
 
-class BaseViewModel : ViewModel(), RemoteErrorEmitter {
+abstract class BaseViewModel : ViewModel(), RemoteErrorEmitter {
 
     val mutableProgress = MutableLiveData<Int>(View.GONE)
     val mutableScreenState = SingleLiveEvent<ScreenState>()
