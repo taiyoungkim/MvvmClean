@@ -10,6 +10,7 @@ import com.example.mvvmclean.viewmodel.MainViewModel
 import com.example.mvvmclean.widget.utils.ScreenState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -25,18 +26,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         mainViewModel.getUserRepo(binding.githubNameEditTxt.text.toString())
     }
 
-    private fun observeViewModel() = lifecycleScope.launch{
-        mainViewModel.mutableScreenState.collect {
-            when (it) {
-                ScreenState.RENDER -> shortShowToast("성공!")
-                ScreenState.ERROR -> shortShowToast("에러 발생!!")
-                else -> shortShowToast("알수없는 에러 발생!!")
+    private fun observeViewModel() {
+        lifecycleScope.launch {
+            mainViewModel.mutableScreenState.collect {
+                when (it) {
+                    ScreenState.RENDER -> shortShowToast("성공!")
+                    ScreenState.ERROR -> shortShowToast("에러 발생!!")
+                    ScreenState.LOADING -> mainViewModel.mutableProgress.emit(View.VISIBLE)
+                    else -> shortShowToast("알수없는 에러 발생!!")
+                }
             }
         }
 
-        mainViewModel.flowUserRepo.collect {
-            it.map { item ->
-                binding.responseTxt.text = item.url
+        lifecycleScope.launchWhenStarted {
+            mainViewModel.flowUserRepo.collectLatest {
+                it.map { item ->
+                    binding.responseTxt.text = item.url
+                }
             }
         }
     }

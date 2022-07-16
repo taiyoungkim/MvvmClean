@@ -1,5 +1,6 @@
 package com.example.mvvmclean.viewmodel
 
+import android.view.View
 import androidx.lifecycle.viewModelScope
 import com.example.domain.model.GithubResponse
 import com.example.domain.usecase.GetUserRepoUseCase
@@ -20,9 +21,13 @@ class MainViewModel @Inject constructor(
 
     fun getUserRepo(owner: String) = viewModelScope.launch {
         val response = getUserRepoUseCase.execute(this@MainViewModel, owner)
+        mutableScreenState.emit(ScreenState.LOADING)
         if (response == null)
             mutableScreenState.emit(ScreenState.ERROR)
         else
-            response.let { _flowUserRepo.emit(it)}
+            response.let {
+                _flowUserRepo.emit(it)
+                mutableScreenState.emit(ScreenState.RENDER)
+            }
     }
 }
